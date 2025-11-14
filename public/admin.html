@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CI3 Admin Panel</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        #preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            display:none;
+        }
+
+        #loading {
+            display:none;
+            text-align:center;
+            padding:10px;
+            font-size:18px;
+            background:#333;
+            color:white;
+            position:fixed;
+            top:10px;
+            right:10px;
+            border-radius:5px;
+        }
+    </style>
+
+</head>
+
+<body class="bg-light">
+
+<div id="loading">Loading...</div>
+
+<div class="container my-4">
+
+    <h2 class="text-center mb-4">User Admin Panel</h2>
+
+    <div id="alertBox"></div>
+
+    <!-- Search Filters -->
+    <div class="card p-3 shadow mb-4">
+        <div class="row">
+            <div class="col"><input type="text" id="searchName" class="form-control" placeholder="Search Name"></div>
+            <div class="col"><input type="text" id="searchEmail" class="form-control" placeholder="Search Email"></div>
+            <div class="col">
+                <select id="searchRole" class="form-control">
+                    <option value="">All Roles</option>
+                    <option>User</option>
+                    <option>Admin</option>
+                </select>
+            </div>
+            <div class="col"><button id="searchBtn" class="btn btn-dark w-100">Search</button></div>
+        </div>
+    </div>
+
+    <!-- Add User -->
+    <div class="card p-3 shadow mb-4">
+        <div class="row g-2">
+            <div class="col"><input class="form-control" id="name" placeholder="Name"></div>
+            <div class="col"><input class="form-control" id="email" placeholder="Email"></div>
+            <div class="col">
+                <select id="role" class="form-control">
+                    <option>User</option>
+                    <option>Admin</option>
+                </select>
+            </div>
+            <div class="col"><button id="addBtn" class="btn btn-primary w-100">Add User</button></div>
+        </div>
+    </div>
+
+    <!-- User Table -->
+    <table class="table table-bordered shadow bg-white">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Profile</th>
+            <th data-sort="name" class="sort">Name ▲</th>
+            <th data-sort="email" class="sort">Email ▲</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+    </table>
+
+    <div id="pagination"></div>
+
+</div>
+
+<script>
+
+const API_USERS = "http://localhost/ci_ajax_learning/api/users";
+const API_UPLOAD = "http://localhost/ci_ajax_learning/api/profile";
+
+let currentPage = 1;
+let limit = 5;
+let sort = "id";
+let order = "ASC";
+
+
+// ✅ Show alert message
+function showAlert(type, message) {
+    let color = type === "success" ? "green" : "red";
+    $("#alertBox").html(`
+        <div class="p-2 mb-2 text-white" style="background:${color}">${message}</div>
+    `);
+    setTimeout(() => $("#alertBox").html(""), 2000);
+}
+
+
+
+// ✅ Load Users
+function loadUsers() {
+    $("#loading").show();
+
+    let params = `?page=${currentPage}&limit=${limit}&sort=${sort}&order=${order}`;
+
+    $.ajax({
+        url: API_USERS + params,
+        type: "GET",
+        success: function(res) {
+
+            let rows = "";
+            res.data.forEach(user => {
+
+                let img = user.profile 
+                    ? `http://localhost/ci_ajax_learning/uploads/${user.profile}`
+                    : "https://placehold.co/80";
+
+                rows += `
+                   <tr data-id="${user.id}">
+                       <td>${user.id}</td>
+                       <td>
+                            <img src="${img}" class="rounded-circle" width="50" height="50">
+                            <input type="file" class="profileInput form-control form-control-sm mt-2">
+                       </td>
+                       <td><input class="form-control name" value="${user.name}"></td>
+                       <td><input class="form-control email" value="${user.email}"></td>
+                       <td>
+                         <select class="form-control role">
+                             <option ${user.role=='User'?'selected':''}>User</option>
+                             <option ${user.role=='Admin'?'selected':''}>Admin</option>
+                         </select>
+                       </td>
+                       <td>
+                           <button class="btn btn-success btn-sm updateBtn">Update</button>
+                           <button class="btn btn-danger btn-sm deleteBtn">Delete</button>
+                       </td>
+                   </tr>
+                `;
+            });
+
+            $("#userTableBody").html(rows);
+
+            // Pagination buttons
+            renderPagination(res.total, res.page, res.limit);
+        },
+
+        complete: function() {
+            $("#loading").hide();
+        }
+    });
+}
+
+
+
+function renderPagination(total, page, limit) {
+    let pages = Math.ceil(total / limit);
+
+    let html = "";
+    for (let i = 1; i <= pages; i++) {
+        html += `<button class="btn btn-sm ${i == page ? 'btn-dark' : 'btn-secondary'} pageBtn" data-page="${i}">${i}</button> `;
+    }
+    $("#pagination").html(html);
+}
+
+
+
+// ✅ Pagination
+$(document).on("click", ".pageBtn", function() {
+    currentPage = $(this).data("page");
+    loadUsers();
+});
+
+
+
+// ✅ Add User
+$("#addBtn").click(function() {
+
+    let data = {
+        name: $("#name").val().trim(),
+        email: $("#email").val().trim(),
+        role: $("#role").val()
+    };
+
+    $.ajax({
+        url: API_USERS,
+        type: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+
+        success: function(res) {
+            showAlert("success", res.message);
+            loadUsers();
+        },
+
+        error: function(xhr) {
+            let msg = JSON.parse(xhr.responseText).message;
+            showAlert("error", msg);
+        }
+    });
+});
+
+
+
+// ✅ Update User
+$(document).on("click", ".updateBtn", function() {
+    let row = $(this).closest("tr");
+    let id = row.data("id");
+
+    let data = {
+        name: row.find(".name").val(),
+        email: row.find(".email").val(),
+        role: row.find(".role").val()
+    };
+
+    $.ajax({
+        url: API_USERS + "/" + id,
+        type: "PUT",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+
+        success: function(res) {
+            showAlert("success", "Updated!");
+        }
+    });
+});
+
+
+
+// ✅ Delete User
+$(document).on("click", ".deleteBtn", function() {
+    let id = $(this).closest("tr").data("id");
+
+    if (!confirm("Delete this user?")) return;
+
+    $.ajax({
+        url: API_USERS + "/" + id,
+        type: "DELETE",
+        success: function(res) {
+            showAlert("success", "User Deleted");
+            loadUsers();
+        }
+    });
+});
+
+
+
+// ✅ Upload Profile Image
+$(document).on("change", ".profileInput", function() {
+
+    let row = $(this).closest("tr");
+    let id = row.data("id");
+
+    let formData = new FormData();
+    formData.append("image", this.files[0]);
+    for (var pair of formData.entries()) {
+    console.log(pair[0] + ':', pair[1]);
+}
+    
+    $.ajax({
+        url: API_UPLOAD + "/" + id,
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        
+        success: function(res) {
+            showAlert("success", res.message);
+            loadUsers();
+        }
+    });
+
+});
+
+
+$(document).ready(() => loadUsers());
+
+</script>
+
+</body>
+</html>

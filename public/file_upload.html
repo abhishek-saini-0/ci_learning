@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AJAX File Upload</title>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <style>
+    #preview {
+      width:150px;
+      height:150px;
+      border:1px solid #ccc;
+      object-fit:cover;
+      display:none;
+      margin-top:10px;
+    }
+
+    #progressBar {
+      width:0%;
+      height:10px;
+      background:green;
+      margin-top:10px;
+      display:none;
+    }
+  </style>
+
+</head>
+<body>
+
+<h2>Upload Image (AJAX + CI3 API)</h2>
+
+<input type="file" id="fileInput"><br>
+
+<img id="preview" />
+
+<div id="progressBar"></div>
+
+<button id="uploadBtn">Upload</button>
+
+<p id="result"></p>
+
+<script>
+
+const API_URL = "http://localhost/ci_ajax_learning/api/upload";
+
+
+// ✅ IMAGE PREVIEW BEFORE UPLOAD
+$("#fileInput").on("change", function() {
+    let file = this.files[0];
+
+    if (file) {
+        $("#preview").show();
+        $("#preview").attr("src", URL.createObjectURL(file));
+    }
+});
+
+
+// ✅ UPLOAD IMAGE WITH PROGRESS BAR
+$("#uploadBtn").click(function() {
+
+    let file = $("#fileInput")[0].files[0];
+    if (!file) {
+        $("#result").html("Please select a file first!");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    $.ajax({
+        url: API_URL,
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+
+        xhr: function() {
+            let xhr = new window.XMLHttpRequest();
+
+            xhr.upload.addEventListener("progress", function(e) {
+                if (e.lengthComputable) {
+                    let percent = (e.loaded / e.total) * 100;
+                    $("#progressBar").show().css("width", percent + "%");
+                }
+            });
+
+            return xhr;
+        },
+
+        success: function(res) {
+            $("#result").html(`<span style='color:green'>${res.message}</span><br>
+                                <img src="${res.file_path}" width="150">`);
+        },
+
+        error: function(xhr) {
+            $("#result").html(`<span style='color:red'>Upload failed</span>`);
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>

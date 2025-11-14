@@ -1,0 +1,108 @@
+body {
+	font-family: Arial;
+	margin: 0;
+	padding: 0;
+	/* height: 100%; */
+}
+
+.header {
+	background: #333;
+	color: #fff;
+	padding: 15px;
+}
+
+.head {
+	width: 40px;
+	height: 40px;
+	background: #555;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.wrapper {
+	min-height: calc(100vh - 60px);
+	/* 60px = footer height */
+}
+
+.footer {
+	background: #333;
+	color: #fff;
+	padding: 15px;
+	text-align: center;
+	height: 60px;
+}
+    .table-container {
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin-top: 20px;
+    }
+
+    .custom-table thead {
+        background: #007bff !important;
+        color: #fff;
+    }
+
+    .custom-table th {
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .custom-table td {
+        padding: 12px;
+        vertical-align: middle;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .custom-table tbody tr:hover {
+        background: #f5f7ff;
+        transition: 0.2s;
+    }
+
+    /* Action buttons */
+    .btn-edit {
+        background: #ffc107;
+        color: #fff;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        margin-right: 6px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: #e0a800;
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: #fff;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: #bd2130;
+    }
+
+    /* Inputs inside table */
+    table input, table select {
+        width: 100%;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }

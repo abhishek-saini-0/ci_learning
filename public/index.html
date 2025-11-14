@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AJAX CRUD - Single File</title>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <!-- Simple styling -->
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table, th, td { border: 1px solid #333; }
+    th, td { padding: 10px; text-align: left; }
+    .btn { padding: 5px 10px; cursor: pointer; }
+    .btn-add { background: green; color: white; }
+    .btn-update { background: blue; color: white; }
+    .btn-delete { background: red; color: white; }
+    button{
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    button:hover{
+      color: rgb(209, 217, 224);
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>AJAX CRUD (All in One File)</h2>
+
+<!-- ✅ ADD USER FORM -->
+<h3>Add User</h3>
+<input type="text" id="name" placeholder="Name">
+<input type="email" id="email" placeholder="Email">
+<select id="role">
+  <option>User</option>
+  <option>Admin</option>
+</select>
+<button class="btn btn-add" id="addBtn">Add User</button>
+
+<p id="result"></p>
+
+<!-- ✅ USERS TABLE -->
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="userTableBody"></tbody>
+</table>
+<div id="pagination" class="mt-3 d-flex gap-2"></div>
+
+
+<script>
+
+const API_URL = "http://localhost/ci_ajax_learning/api/users";
+
+/* ✅ 1. LOAD USERS (GET) */
+function loadUsers() {
+    $.ajax({
+        url: API_URL,
+        type: "GET",
+        dataType: "json",
+        success: function(res) {
+
+            let rows = "";
+
+            res.data.forEach(user => {
+                rows += `
+                  <tr data-id="${user.id}">
+                    <td>${user.id}</td>
+                    <td><input class="name" value="${user.name}"></td>
+                    <td><input class="email" value="${user.email}"></td>
+                    <td>
+                      <select class="role">
+                        <option ${user.role=='User'?'selected':''}>User</option>
+                        <option ${user.role=='Admin'?'selected':''}>Admin</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button class="btn btn-update updateBtn" id="updateBtn">Update</button>
+                      <button class="btn btn-delete deleteBtn">Delete</button>
+                    </td>
+                  </tr>
+                `;
+            });
+
+            $("#userTableBody").html(rows);
+        }
+    });
+}
+
+/* ✅ 2. ADD USER (POST) */
+$("#addBtn").click(function() {
+
+    let newUser = {
+        name: $("#name").val(),
+        email: $("#email").val(),
+        role: $("#role").val()
+    };
+
+    $.ajax({
+        url: API_URL,
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(newUser),
+        success: function(res) {
+            $("#result").html("<b style='color:green'>" + res.message + "</b>");
+            loadUsers();
+        }
+    });
+});
+
+
+/* ✅ 3. UPDATE USER (PUT) */
+$(document).on("click", ".updateBtn", function() {
+
+    let row = $(this).closest("tr");
+    let id = row.data("id");
+
+    let updatedUser = {
+        name: row.find(".name").val(),
+        email: row.find(".email").val(),
+        role: row.find(".role").val()
+    };
+
+    $.ajax({
+        url: API_URL + "/" + id,
+        type: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify(updatedUser),
+        success: function(res) {
+            alert(res.message);
+            loadUsers();
+        }
+    });
+
+});
+
+
+/* ✅ 4. DELETE USER (DELETE) */
+$(document).on("click", ".deleteBtn", function() {
+
+    let id = $(this).closest("tr").data("id");
+
+    if (!confirm("Delete this user?")) return;
+
+    $.ajax({
+        url: API_URL + "/" + id,
+        type: "DELETE",
+        success: function(res) {
+            alert(res.message);
+            loadUsers();
+        }
+    });
+
+});
+
+/* ✅ Load data on page open */
+$(document).ready(loadUsers);
+
+</script>
+
+</body>
+</html>
