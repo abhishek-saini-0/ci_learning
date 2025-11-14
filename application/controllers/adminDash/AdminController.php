@@ -12,12 +12,12 @@ class AdminController extends CI_Controller
         parent::__construct();
         $this->load->library('session');
         $this->load->model('adminDash/AdminModel');
-        if ($this->router->method !== 'login') {
-            if (!$this->session->userdata('admin_logged_in')) {
-                redirect('admin/login');
-                exit;
-            }
-        }
+        // if ($this->router->method !== 'login') {
+        //     if (!$this->session->userdata('admin_logged_in')) {
+        //         redirect('admin/login');
+        //         exit;
+        //     }
+        // }
     }
 
     public function index()
@@ -52,6 +52,12 @@ class AdminController extends CI_Controller
         // $data['users'] = $this->AdminModel->get_users();
         $data['title'] = 'Add User';
         $this->load->view('adminDash/login', $data);
+    }
+    public function register()
+    {
+        // $data['users'] = $this->AdminModel->get_users();
+        $data['title'] = 'Register User';
+        $this->load->view('adminDash/register', $data);
     }
 
     public function logout()

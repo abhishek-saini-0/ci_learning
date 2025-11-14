@@ -18,6 +18,7 @@ $route['admin/dashboard'] = 'adminDash/AdminController/index';
 $route['admin/users'] = 'adminDash/AdminController/users';
 $route['admin/login'] = 'adminDash/AdminController/login';
 $route['admin/logout'] = 'adminDash/AdminController/logout';
+$route['admin/register'] = 'adminDash/AdminController/register';
 
 
 // ✅ API Routes

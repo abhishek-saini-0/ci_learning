@@ -106,7 +106,14 @@
         <input type="password" id="password" placeholder="Password" required>
         <button type="submit">Login</button>
     </form>
+
+    <!-- Register Link -->
+    <p style="margin-top: 15px; text-align: center;">
+        Don't have an account?
+        <a href="<?php echo site_url('admin/register'); ?>">Register here</a>
+    </p>
 </div>
+
 
 <script>
     document.getElementById("loginForm").addEventListener("submit", function (e) {
