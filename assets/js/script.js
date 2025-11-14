@@ -113,6 +113,28 @@ $("#addBtn").click(function() {
         }
     });
 });
+/* ✅ 2. Register USER (POST) */
+$("#registerBtn").click(function() {
+
+    let newUser = {
+        name: $("#name").val(),
+        mobile: $("#mobile").val(),
+        email: $("#email").val(),
+        password: $("#password").val(),
+        role: $("#role").val()
+    };
+
+    $.ajax({
+        url: API_URL,
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(newUser),
+        success: function(responce) {
+             alert(responce.message);
+            // loadUsers();
+        }
+    });
+});
 
 
 /* ✅ 3. UPDATE USER (PUT) */
