@@ -12,12 +12,12 @@ class AdminController extends CI_Controller
         parent::__construct();
         $this->load->library('session');
         $this->load->model('adminDash/AdminModel');
-        // if ($this->router->method !== 'login') {
-        //     if (!$this->session->userdata('admin_logged_in')) {
-        //         redirect('admin/login');
-        //         exit;
-        //     }
-        // }
+        if ($this->router->method !== 'login') {
+            if (!$this->session->userdata('admin_logged_in')) {
+                redirect('admin/login');
+                exit;
+            }
+        }
     }
 
     public function index()

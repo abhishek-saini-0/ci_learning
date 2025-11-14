@@ -94,6 +94,15 @@ class AdminApi extends CI_Controller
 
         $hash_pass = password_hash($input['password'], PASSWORD_BCRYPT);
 
+        $email = $input['email'];
+       $user_email =  $this->AdminModel->get_user_by_email($email); 
+
+        if ($user_email) { 
+        http_response_code(409); 
+        echo json_encode(['status' => false, 'message' => 'Email already exists']);
+        return; 
+    }
+
         $data = [
             'name' => $input['name'],
             'email' => $input['email'],
